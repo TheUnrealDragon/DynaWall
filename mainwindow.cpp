@@ -7,6 +7,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     std::ifstream f(config);
+    this->resize(1280,800);
+    labelgrid = new QWidget(this);
+    labelgridlayout = new QGridLayout(this);
+    labelgrid->setLayout(labelgridlayout);
+    ui->scrollArea->setWidget(labelgrid);
     if(f.is_open())
     {
         std::cout << "file read start" << std::endl;
@@ -168,19 +173,17 @@ void MainWindow::on_pushButton_clicked()
     for(auto const &dir_entry : std::filesystem::recursive_directory_iterator{ui->wallpaperFolder->text().toStdString()})
     {
         std::cout << dir_entry << std::endl;
-        QLabel *label = new QLabel(this);
+        std::filesystem::path path = dir_entry.path();
         std::stringstream is;
         is << dir_entry;
         std::string p;
         is >> p;
-        label->resize(300,300);
         std::cout << "p is: " << p << std::endl;
         p.erase(0,1);
         p.erase(p.size()-1);
         QPixmap pixmap(QString::fromStdString(p));
         if(pixmap.isNull())
         {
-            std::filesystem::path path = dir_entry.path();
             if(path.extension() == ".heic")
             {
                 std::cout << "[INFO] heic image found!" << std::endl;
@@ -190,9 +193,9 @@ void MainWindow::on_pushButton_clicked()
             std::cout << path << " is not an image!" << std::endl;
             continue;
         }
-        label->setPixmap(pixmap.scaled(label->size(),Qt::KeepAspectRatio));
-        label->show();
-        ui->gridLayout_3->addWidget(label,i,j++);
+        PreviewWidget *wid = new PreviewWidget(QString::fromStdString(p),QString::fromStdString(path.filename().string()),this);
+        connect(wid,&PreviewWidget::CheckBoxChecked,this,&MainWindow::on_previewWidget_checked);
+        labelgridlayout->addWidget(wid,i,j++);
         if((j+1)%4 == 0)
         {
             i++;
@@ -202,5 +205,13 @@ void MainWindow::on_pushButton_clicked()
 
 
 
+}
+
+void MainWindow::on_previewWidget_checked(bool check)
+{
+    if(check)
+        std::cout << "check" << std::endl;
+    else
+        std::cout << "uncheck" << std::endl;
 }
 

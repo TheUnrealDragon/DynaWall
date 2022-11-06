@@ -13,7 +13,9 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QPixmap>
+#include <QGridLayout>
 #include <sstream>
+#include "previewwidget.h"
 #include <fstream>
 
 QT_BEGIN_NAMESPACE
@@ -26,12 +28,15 @@ class MainWindow : public QMainWindow
     std::vector<QLabel *> labellist;
     std::string config="config.json";
     QJsonObject topsettings;
+    QWidget *labelgrid;
+    QGridLayout *labelgridlayout;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
     void on_pushButton_clicked();
+    void on_previewWidget_checked(bool check);
 
 private:
     Ui::MainWindow *ui;
